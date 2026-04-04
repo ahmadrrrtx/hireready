@@ -7,13 +7,13 @@ export default function SetupPage() {
   const navigate = useNavigate();
   const { setAIProvider, setAPIKey } = useApp();
   const [selectedOption, setSelectedOption] = useState<'free' | 'custom'>('free');
-  const [customProvider, setCustomProvider] = useState<'claude' | 'openai' | 'groq'>('claude');
+  const [customProvider, setCustomProvider] = useState<'claude' | 'openai' | 'groq'>('groq');
   const [apiKeyInput, setApiKeyInput] = useState('');
 
   const handleContinue = () => {
     if (selectedOption === 'free') {
-      setAIProvider('gemini');
-      setAPIKey('');
+      setAIProvider('groq');
+      setAPIKey(import.meta.env.VITE_GROQ_API_KEY || '');
     } else {
       if (!apiKeyInput.trim()) {
         alert('Please enter your API key');
@@ -52,7 +52,7 @@ export default function SetupPage() {
               </span>
             </div>
             <h3 className="text-white text-2xl font-semibold mb-2">Use Free AI</h3>
-            <p className="text-[#94a3b8] mb-4">Gemini by Google - Free, no API key needed</p>
+            <p className="text-[#94a3b8] mb-4">Groq — Fast, free, no API key needed</p>
             <div className="inline-block bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
               FREE
             </div>
@@ -80,9 +80,9 @@ export default function SetupPage() {
                   className="w-full bg-[#0a0a0f] border border-[#7c3aed]/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#7c3aed]"
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <option value="groq">Groq (Free)</option>
                   <option value="claude">Claude (Anthropic)</option>
                   <option value="openai">OpenAI (GPT)</option>
-                  <option value="groq">Groq</option>
                 </select>
 
                 <input
