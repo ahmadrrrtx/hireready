@@ -1,5 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
 const SYSTEM_PROMPT = `You are an expert tech recruiter and career coach. A user has shared their skills. Your job is to suggest ONE unique, specific portfolio project idea that will genuinely impress recruiters. The project must solve a real problem, not be a tutorial clone. Return your response in this EXACT format:
 
 PROJECT NAME: [Creative name]
@@ -26,19 +24,15 @@ export async function generateProjectIdea(
   switch (provider) {
     case 'gemini':
       return generateWithGemini(userPrompt);
-
     case 'claude':
       if (!apiKey) throw new Error('API key required for Claude');
       return generateWithClaude(userPrompt, apiKey);
-
     case 'openai':
       if (!apiKey) throw new Error('API key required for OpenAI');
       return generateWithOpenAI(userPrompt, apiKey);
-
     case 'groq':
       if (!apiKey) throw new Error('API key required for Groq');
       return generateWithGroq(userPrompt, apiKey);
-
     default:
       throw new Error('Invalid AI provider');
   }
@@ -46,13 +40,26 @@ export async function generateProjectIdea(
 
 async function generateWithGemini(userPrompt: string): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment.');
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-04-17' });
+  if (!apiKey) throw new Error('Gemini API key not configured.');
 
-  const result = await model.generateContent(SYSTEM_PROMPT + '\n\n' + userPrompt);
-  const response = await result.response;
-  return response.text();
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: SYSTEM_PROMPT + '\n\n' + userPrompt }] }]
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err?.error?.message || 'Gemini API error');
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
 }
 
 async function generateWithClaude(userPrompt: string, apiKey: string): Promise<string> {
@@ -66,19 +73,11 @@ async function generateWithClaude(userPrompt: string, apiKey: string): Promise<s
     body: JSON.stringify({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 2048,
-      messages: [
-        {
-          role: 'user',
-          content: SYSTEM_PROMPT + '\n\n' + userPrompt,
-        },
-      ],
+      messages: [{ role: 'user', content: SYSTEM_PROMPT + '\n\n' + userPrompt }],
     }),
   });
 
-  if (!response.ok) {
-    throw new Error(`Claude API error: ${response.statusText}`);
-  }
-
+  if (!response.ok) throw new Error(`Claude API error: ${response.statusText}`);
   const data = await response.json();
   return data.content[0].text;
 }
@@ -93,22 +92,13 @@ async function generateWithOpenAI(userPrompt: string, apiKey: string): Promise<s
     body: JSON.stringify({
       model: 'gpt-4o-mini',
       messages: [
-        {
-          role: 'system',
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: 'user',
-          content: userPrompt,
-        },
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
       ],
     }),
   });
 
-  if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.statusText}`);
-  }
-
+  if (!response.ok) throw new Error(`OpenAI API error: ${response.statusText}`);
   const data = await response.json();
   return data.choices[0].message.content;
 }
@@ -123,22 +113,13 @@ async function generateWithGroq(userPrompt: string, apiKey: string): Promise<str
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
       messages: [
-        {
-          role: 'system',
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: 'user',
-          content: userPrompt,
-        },
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
       ],
     }),
   });
 
-  if (!response.ok) {
-    throw new Error(`Groq API error: ${response.statusText}`);
-  }
-
+  if (!response.ok) throw new Error(`Groq API error: ${response.statusText}`);
   const data = await response.json();
   return data.choices[0].message.content;
 }
