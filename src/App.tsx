@@ -7,6 +7,7 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './components/ui/Toast'; // <-- Added Provider
 import { useAuth } from './hooks/useAuth';
 import AppShell from './components/layout/AppShell';
 import { ROUTES } from './config/constants';
@@ -66,86 +67,88 @@ function App() {
   return (
     <ThemeProvider>
       <AppProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            {/* Public Routes */}
-            <Route path={ROUTES.landing} element={<Landing />} />
-            <Route path={ROUTES.verify} element={<Verify />} />
-            
-            {/* Auth Routes (public only) */}
-            <Route
-              path={ROUTES.login}
-              element={
-                <PublicOnlyRoute>
-                  <Login />
-                </PublicOnlyRoute>
-              }
-            />
-            <Route
-              path={ROUTES.signup}
-              element={
-                <PublicOnlyRoute>
-                  <Signup />
-                </PublicOnlyRoute>
-              }
-            />
+        <ToastProvider> {/* <-- Wrapped here! */}
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path={ROUTES.landing} element={<Landing />} />
+              <Route path={ROUTES.verify} element={<Verify />} />
+              
+              {/* Auth Routes (public only) */}
+              <Route
+                path={ROUTES.login}
+                element={
+                  <PublicOnlyRoute>
+                    <Login />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path={ROUTES.signup}
+                element={
+                  <PublicOnlyRoute>
+                    <Signup />
+                  </PublicOnlyRoute>
+                }
+              />
 
-            {/* Protected Routes (wrapped in AppShell) */}
-            <Route
-              path={ROUTES.dashboard}
-              element={
-                <ProtectedRoute>
-                  <AppShell>
-                    <Dashboard />
-                  </AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.generator}
-              element={
-                <ProtectedRoute>
-                  <AppShell>
-                    <Generator />
-                  </AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.roadmap}
-              element={
-                <ProtectedRoute>
-                  <AppShell>
-                    <Roadmap />
-                  </AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.certify}
-              element={
-                <ProtectedRoute>
-                  <AppShell>
-                    <Certify />
-                  </AppShell>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={ROUTES.profile}
-              element={
-                <ProtectedRoute>
-                  <AppShell>
-                    <Profile />
-                  </AppShell>
-                </ProtectedRoute>
-              }
-            />
+              {/* Protected Routes (wrapped in AppShell) */}
+              <Route
+                path={ROUTES.dashboard}
+                element={
+                  <ProtectedRoute>
+                    <AppShell>
+                      <Dashboard />
+                    </AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.generator}
+                element={
+                  <ProtectedRoute>
+                    <AppShell>
+                      <Generator />
+                    </AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.roadmap}
+                element={
+                  <ProtectedRoute>
+                    <AppShell>
+                      <Roadmap />
+                    </AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.certify}
+                element={
+                  <ProtectedRoute>
+                    <AppShell>
+                      <Certify />
+                    </AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.profile}
+                element={
+                  <ProtectedRoute>
+                    <AppShell>
+                      <Profile />
+                    </AppShell>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* 404 Catch-all */}
-            <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
-          </Routes>
-        </Suspense>
+              {/* 404 Catch-all */}
+              <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
+            </Routes>
+          </Suspense>
+        </ToastProvider>
       </AppProvider>
     </ThemeProvider>
   );
