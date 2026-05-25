@@ -60,13 +60,12 @@
 }
 
 html {
-  @apply antialiased;
+  @apply antialiased scroll-smooth;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 body {
   @apply bg-gradient-to-br from-gray-950 via-gray-900 to-black text-gray-100;
-  @apply overflow-hidden;
   min-height: 100vh;
   background-attachment: fixed;
 }
