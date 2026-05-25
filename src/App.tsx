@@ -12,7 +12,7 @@ import AppShell from './components/layout/AppShell';
 import { ROUTES } from './config/constants';
 
 // Lazy load pages for code splitting
-const Landing = lazy(() => import('./pages/Landing'));
+const Landing = lazy(() => import('./pages/LandingPage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Generator = lazy(() => import('./pages/Generator'));
 const Roadmap = lazy(() => import('./pages/Roadmap'));
