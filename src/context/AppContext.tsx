@@ -1,137 +1,155 @@
-// ============================================================
-// HIREREADY 2.0 - GLOBAL APPLICATION STATE
-// Master context with localStorage persistence
-// ============================================================
-
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { ProjectIdea, CareerRoadmap, UserProfile } from '../types';
-
-interface QuizProgress {
-  quizTopic: string;
-  startedAt: string;
-  timeRemainingSeconds: number;
-  answers: Record<string, number>;
-}
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
+import { UserProfile, SavedProject } from '../types';
 
 interface AppState {
-  userProfile: UserProfile | null;
-  savedProjects: ProjectIdea[];
-  activeRoadmap: CareerRoadmap | null;
-  quizProgress: QuizProgress | null;
-  verificationKey: string | null;
+  aiProvider: 'gemini' | 'claude' | 'openai' | 'groq' | null;
+  apiKey: string;
+  skills: string;
+  experienceLevel: 'Beginner' | 'Intermediate' | 'Advanced' | null;
+  xp: number;
+  streakDays: int;
+  lastLoginDate: string | null;
+  badges: string[];
 }
 
-interface AppContextType extends AppState {
-  setUserProfile: (profile: UserProfile | null) => void;
-  addProject: (project: ProjectIdea) => void;
-  removeProject: (projectId: string) => void;
-  updateProject: (projectId: string, updates: Partial<ProjectIdea>) => void;
-  setActiveRoadmap: (roadmap: CareerRoadmap | null) => void;
-  setQuizProgress: (progress: QuizProgress | null) => void;
-  setVerificationKey: (key: string | null) => void;
-  clearAllData: () => void;
+interface AppContextType {
+  state: AppState;
+  setAIProvider: (provider: 'gemini' | 'claude' | 'openai' | 'groq') => void;
+  setAPIKey: (key: string) => void;
+  setSkills: (skills: string) => void;
+  setExperienceLevel: (level: 'Beginner' | 'Intermediate' | 'Advanced') => void;
+  addXP: (amount: number) => void;
+  incrementStreak: () => void;
+  unlockBadge: (badgeId: string) => void;
+  resetState: () => void;
 }
-
-const STORAGE_KEY = 'hireready_app_state';
-
-const defaultState: AppState = {
-  userProfile: null,
-  savedProjects: [],
-  activeRoadmap: null,
-  quizProgress: null,
-  verificationKey: null,
-};
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<AppState>(defaultState);
-
-  // Load state from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setState(parsed);
+export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [state, setState] = useState<AppState>(() => {
+    const saved = localStorage.getItem('hireready_v2_state');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
       }
-    } catch (error) {
-      console.error('Failed to load app state from localStorage:', error);
     }
-  }, []);
+    return {
+      aiProvider: 'groq',
+      apiKey: '',
+      skills: '',
+      experienceLevel: null,
+      xp: 0,
+      streakDays: 0,
+      lastLoginDate: null,
+      badges: [],
+    };
+  });
 
-  // Persist state to localStorage whenever it changes
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (error) {
-      console.error('Failed to save app state to localStorage:', error);
-    }
+    localStorage.setItem('hireready_v2_state', JSON.stringify(state));
   }, [state]);
 
-  const setUserProfile = useCallback((profile: UserProfile | null) => {
-    setState(prev => ({ ...prev, userProfile: profile }));
-  }, []);
+  // Streak validation logic
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    if (state.lastLoginDate !== today) {
+      let nextStreak = state.streakDays;
+      if (state.lastLoginDate) {
+        const lastDate = new Date(state.lastLoginDate);
+        const currentDate = new Date(today);
+        const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          nextStreak += 1;
+        } else if (diffDays > 1) {
+          nextStreak = 1;
+        }
+      } else {
+        nextStreak = 1;
+      }
+      setState(prev => ({
+        ...prev,
+        lastLoginDate: today,
+        streakDays: nextStreak
+      }));
+    }
+  }, [state.lastLoginDate, state.streakDays]);
 
-  const addProject = useCallback((project: ProjectIdea) => {
-    setState(prev => ({
-      ...prev,
-      savedProjects: [...prev.savedProjects, { ...project, id: crypto.randomUUID() }],
-    }));
-  }, []);
-
-  const removeProject = useCallback((projectId: string) => {
-    setState(prev => ({
-      ...prev,
-      savedProjects: prev.savedProjects.filter(p => p.id !== projectId),
-    }));
-  }, []);
-
-  const updateProject = useCallback((projectId: string, updates: Partial<ProjectIdea>) => {
-    setState(prev => ({
-      ...prev,
-      savedProjects: prev.savedProjects.map(p =>
-        p.id === projectId ? { ...p, ...updates } : p
-      ),
-    }));
-  }, []);
-
-  const setActiveRoadmap = useCallback((roadmap: CareerRoadmap | null) => {
-    setState(prev => ({ ...prev, activeRoadmap: roadmap }));
-  }, []);
-
-  const setQuizProgress = useCallback((progress: QuizProgress | null) => {
-    setState(prev => ({ ...prev, quizProgress: progress }));
-  }, []);
-
-  const setVerificationKey = useCallback((key: string | null) => {
-    setState(prev => ({ ...prev, verificationKey: key }));
-  }, []);
-
-  const clearAllData = useCallback(() => {
-    setState(defaultState);
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
-
-  const value: AppContextType = {
-    ...state,
-    setUserProfile,
-    addProject,
-    removeProject,
-    updateProject,
-    setActiveRoadmap,
-    setQuizProgress,
-    setVerificationKey,
-    clearAllData,
+  const setAIProvider = (provider: 'gemini' | 'claude' | 'openai' | 'groq') => {
+    setState((prev) => ({ ...prev, aiProvider: provider }));
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  const setAPIKey = (key: string) => {
+    setState((prev) => ({ ...prev, apiKey: key }));
+  };
+
+  const setSkills = (skills: string) => {
+    setState((prev) => ({ ...prev, skills }));
+  };
+
+  const setExperienceLevel = (level: 'Beginner' | 'Intermediate' | 'Advanced') => {
+    setState((prev) => ({ ...prev, experienceLevel: level }));
+  };
+
+  const addXP = useCallback((amount: number) => {
+    setState(prev => {
+      const nextXp = prev.xp + amount;
+      return { ...prev, xp: nextXp };
+    });
+  }, []);
+
+  const incrementStreak = useCallback(() => {
+    setState(prev => ({ ...prev, streakDays: prev.streakDays + 1 }));
+  }, []);
+
+  const unlockBadge = useCallback((badgeId: string) => {
+    setState(prev => {
+      if (prev.badges.includes(badgeId)) return prev;
+      return { ...prev, badges: [...prev.badges, badgeId] };
+    });
+  }, []);
+
+  const resetState = () => {
+    setState({
+      aiProvider: 'groq',
+      apiKey: '',
+      skills: '',
+      experienceLevel: null,
+      xp: 0,
+      streakDays: 0,
+      lastLoginDate: null,
+      badges: [],
+    });
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        state,
+        setAIProvider,
+        setAPIKey,
+        setSkills,
+        setExperienceLevel,
+        addXP,
+        incrementStreak,
+        unlockBadge,
+        resetState,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 };
 
-export const useAppContext = () => {
+export const useApp = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error('useAppContext must be used within AppProvider');
+    throw new Error('useApp must be used within an AppProvider');
   }
   return context;
 };
