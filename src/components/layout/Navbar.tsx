@@ -6,19 +6,19 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useAppContext } from '../../context/AppContext';
+import { useApp } from '../../context/AppContext';
 import { cn } from '../../utils/cn';
 import Button from '../ui/Button';
 
 const Navbar: React.FC = () => {
   const { user, profile, signOut } = useAuth();
-  const { clearAllData } = useAppContext();
+  const { resetState } = useApp();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      clearAllData();
+      resetState();
     } catch (error) {
       console.error('Failed to sign out:', error);
     }
