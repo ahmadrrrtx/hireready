@@ -7,7 +7,7 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { ToastProvider } from './components/ui/Toast'; // <-- Added Provider
+import { ToastProvider } from './components/ui/Toast';
 import { useAuth } from './hooks/useAuth';
 import AppShell from './components/layout/AppShell';
 import { ROUTES } from './config/constants';
@@ -17,6 +17,7 @@ const Landing = lazy(() => import('./pages/LandingPage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Generator = lazy(() => import('./pages/Generator'));
 const Roadmap = lazy(() => import('./pages/Roadmap'));
+const Courses = lazy(() => import('./pages/Courses'));
 const Certify = lazy(() => import('./pages/Certify'));
 const Verify = lazy(() => import('./pages/Verify'));
 const Profile = lazy(() => import('./pages/Profile'));
@@ -67,7 +68,7 @@ function App() {
   return (
     <ThemeProvider>
       <AppProvider>
-        <ToastProvider> {/* <-- Wrapped here! */}
+        <ToastProvider>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               {/* Public Routes */}
@@ -119,6 +120,16 @@ function App() {
                   <ProtectedRoute>
                     <AppShell>
                       <Roadmap />
+                    </AppShell>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path={ROUTES.courses}
+                element={
+                  <ProtectedRoute>
+                    <AppShell>
+                      <Courses />
                     </AppShell>
                   </ProtectedRoute>
                 }
