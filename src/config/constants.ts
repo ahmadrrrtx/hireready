@@ -136,6 +136,7 @@ export const ROUTES = {
   dashboard: '/dashboard',
   generator: '/generator',
   roadmap: '/roadmap',
+  courses: '/courses',
   certify: '/certify',
   verify: '/verify',
   profile: '/profile',
