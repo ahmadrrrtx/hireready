@@ -1,6 +1,6 @@
 /* ============================================================
    HIREREADY 2.0 - GLOBAL STYLES
-   Premium dark purple/indigo glassmorphic theme
+   Premium dark purple/indigo satin glassmorphic theme
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -10,11 +10,10 @@
 @tailwind utilities;
 
 /* ============================================================
-   CSS VARIABLES - GLASSMORPHIC THEME
+   CSS VARIABLES - SATIN GLASSMORPHIC THEME
    ============================================================ */
 
 :root {
-  /* Primary Colors - Purple/Indigo Scheme */
   --color-primary: 147 51 234; /* purple-600 */
   --color-primary-dark: 126 34 206; /* purple-700 */
   --color-primary-light: 168 85 247; /* purple-500 */
@@ -27,32 +26,21 @@
   --color-warning: 251 146 60; /* orange-400 */
   --color-error: 239 68 68; /* red-500 */
   
-  /* Glassmorphic Background */
-  --color-glass-bg: rgba(17, 24, 39, 0.4); /* gray-900 with 40% opacity */
-  --color-glass-border: rgba(147, 51, 234, 0.3); /* purple with 30% opacity */
-  --color-glass-hover: rgba(147, 51, 234, 0.15);
+  --glow-primary: 0 0 25px rgba(147, 51, 234, 0.4),
+                   0 0 50px rgba(147, 51, 234, 0.2);
+  --glow-secondary: 0 0 25px rgba(99, 102, 241, 0.4);
   
-  /* Neon Glow */
-  --glow-primary: 0 0 20px rgba(147, 51, 234, 0.5),
-                   0 0 40px rgba(147, 51, 234, 0.3),
-                   0 0 60px rgba(147, 51, 234, 0.2);
-  --glow-secondary: 0 0 20px rgba(99, 102, 241, 0.5),
-                     0 0 40px rgba(99, 102, 241, 0.3);
-  --glow-accent: 0 0 20px rgba(236, 72, 153, 0.5);
-  
-  /* Spacing & Sizing */
   --nav-height: 4rem;
   --sidebar-width: 16rem;
   --sidebar-collapsed-width: 4rem;
   
-  /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ============================================================
-   BASE STYLES
+   BASE STYLES - SCROLLABLE MAIN BODY
    ============================================================ */
 
 * {
@@ -68,48 +56,53 @@ body {
   @apply bg-gradient-to-br from-gray-950 via-gray-900 to-black text-gray-100;
   min-height: 100vh;
   background-attachment: fixed;
+  overflow-y: auto; /* Natural scrolling enabled! */
 }
 
 /* ============================================================
-   GLASSMORPHIC UTILITIES
+   PREMIUM SATIN GLASSMORPHISM
    ============================================================ */
 
 @layer components {
-  .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  .glass-satin {
+    background: radial-gradient(120% 120% at 50% 10%, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.37),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+      0 12px 40px 0 rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
   }
   
-  .glass-hover {
+  .glass-satin-hover {
     @apply transition-all duration-300;
   }
   
-  .glass-hover:hover {
-    @apply bg-white/10 border-purple-500/50;
+  .glass-satin-hover:hover {
+    background: radial-gradient(120% 120% at 50% 10%, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 100%);
+    @apply border-purple-500/30 -translate-y-0.5;
     box-shadow: 
-      0 8px 32px 0 rgba(147, 51, 234, 0.3),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+      0 20px 40px 0 rgba(147, 51, 234, 0.15),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
   }
   
   .glass-card {
-    @apply glass rounded-2xl p-6;
+    @apply glass-satin rounded-2xl p-6;
   }
   
   .glass-input {
-    @apply glass rounded-lg px-4 py-2.5 text-sm outline-none;
+    @apply glass-satin rounded-lg px-4 py-2.5 text-sm outline-none;
     @apply focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/20;
     @apply placeholder:text-gray-500;
   }
   
   .neon-border {
-    @apply border border-purple-500/50;
+    @apply border border-purple-500/40;
     box-shadow: var(--glow-primary);
   }
   
   .neon-border-indigo {
-    @apply border border-indigo-500/50;
+    @apply border border-indigo-500/40;
     box-shadow: var(--glow-secondary);
   }
   
@@ -132,233 +125,60 @@ body {
 }
 
 /* ============================================================
-   CUSTOM SCROLLBAR
+   CUSTOM SCROLLBARS
    ============================================================ */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-950/50;
+  @apply bg-gray-950/20;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-purple-900/50 rounded-full;
-  @apply hover:bg-purple-700/70;
+  @apply bg-purple-900/30 rounded-full;
+  @apply hover:bg-purple-700/50;
   transition: background var(--transition-normal);
 }
 
-::-webkit-scrollbar-corner {
-  @apply bg-transparent;
-}
-
-/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(126, 34, 206, 0.5) rgba(17, 24, 39, 0.5);
+  scrollbar-color: rgba(126, 34, 206, 0.3) rgba(17, 24, 39, 0.2);
 }
 
 /* ============================================================
-   ANIMATIONS & KEYFRAMES
+   ANIMATIONS
    ============================================================ */
 
 @keyframes glow-pulse {
   0%, 100% {
     box-shadow: 
-      0 0 20px rgba(147, 51, 234, 0.3),
-      0 0 40px rgba(147, 51, 234, 0.2),
-      0 0 60px rgba(147, 51, 234, 0.1);
+      0 0 20px rgba(147, 51, 234, 0.2),
+      0 0 40px rgba(147, 51, 234, 0.1);
   }
   50% {
     box-shadow: 
-      0 0 30px rgba(147, 51, 234, 0.5),
-      0 0 60px rgba(147, 51, 234, 0.3),
-      0 0 90px rgba(147, 51, 234, 0.2);
-  }
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
+      0 0 30px rgba(147, 51, 234, 0.4),
+      0 0 60px rgba(147, 51, 234, 0.2);
   }
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
 }
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ============================================================
-   UTILITY ANIMATION CLASSES
-   ============================================================ */
 
 .animate-glow-pulse {
   animation: glow-pulse 3s ease-in-out infinite;
 }
 
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 5s ease infinite;
-}
-
 .animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out;
-}
-
-.animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out;
-}
-
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-
-/* ============================================================
-   LOADING SPINNER
-   ============================================================ */
-
-.spinner {
-  @apply inline-block w-5 h-5 border-2 border-current border-r-transparent rounded-full;
-  animation: spin 0.75s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ============================================================
-   TEXT SELECTION
-   ============================================================ */
-
-::selection {
-  @apply bg-purple-500/30 text-purple-100;
-}
-
-::-moz-selection {
-  @apply bg-purple-500/30 text-purple-100;
-}
-
-/* ============================================================
-   FOCUS VISIBLE (ACCESSIBILITY)
-   ============================================================ */
-
-:focus-visible {
-  @apply outline-2 outline-offset-2 outline-purple-500;
-}
-
-/* ============================================================
-   CUSTOM UTILITY CLASSES
-   ============================================================ */
-
-.text-balance {
-  text-wrap: balance;
+  animation: float 4s ease-in-out infinite;
 }
 
 .text-gradient {
   @apply bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400;
   @apply bg-clip-text text-transparent;
-}
-
-.backdrop-glass {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-
-.container-custom {
-  @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
-}
-
-.page-container {
-  @apply min-h-screen pt-20 pb-12;
-}
-
-/* ============================================================
-   RESPONSIVE BREAKPOINTS
-   ============================================================ */
-
-@media (max-width: 640px) {
-  :root {
-    --sidebar-width: 100%;
-    --nav-height: 3.5rem;
-  }
-}
-
-/* ============================================================
-   PRINT STYLES
-   ============================================================ */
-
-@media print {
-  body {
-    @apply bg-white text-black;
-  }
-  
-  .no-print {
-    display: none !important;
-  }
 }
